@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Generator</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Ensure this CSS file exists -->
+</head>
+<body>
+    <div class="invoice-form">
+        <h2>Create Invoice</h2>
+        <form id="invoiceForm">
+            <label for="company">Company Name</label>
+            <input type="text" id="company" name="company" required>
+
+            <label for="client">Client Name</label>
+            <input type="text" id="client" name="client" required>
+
+            <label for="date">Invoice Date</label>
+            <input type="date" id="date" name="date" required>
+
+            <label for="amount">Amount</label>
+            <input type="number" id="amount" name="amount" required>
+
+            <button type="submit">Generate Invoice</button>
+        </form>
+        <button id="downloadPDF">Download PDF</button>
+    </div>
+
+    <!-- Include Axios for making HTTP requests -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // Event listener for the invoice form submission
+        document.getElementById('invoiceForm').addEventListener('submit', function(event) {
+            event.preventDefault();  // Prevent the default form submission
+
+            // Gather form data
+            const invoiceData = {
+                company: document.getElementById('company').value,
+                client: document.getElementById('client').value,
+                date: document.getElementById('date').value,
+                amount: document.getElementById('amount').value
+            };
+
+            // Send the data to the backend to save the invoice
+            axios.post('https://your-backend-api.com/api/invoices', invoiceData)
+                .then(response => {
+                    console.log('Invoice saved', response.data);
+                    alert('Invoice created!');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('There was an error creating the invoice!');
+                });
+        });
+
+        // Event listener for the PDF download button
+        document.getElementById('downloadPDF').addEventListener('click', function() {
+            const invoiceData = {
+                company: document.getElementById('company').value,
+                client: document.getElementById('client').value,
+                date: document.getElementById('date').value,
+                amount: document.getElementById('amount').value
+            };
+
+            // Send the data to backend to generate the PDF
+            axios.post('https://your-backend-api.com/api/download-pdf', invoiceData, { responseType: 'blob' })
+                .then(response => {
+                    // Create a Blob from the response and download the PDF file
+                    const blob = new Blob([response.data], { type: 'application/pdf' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'invoice.pdf';
+                    link.click();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('There was an error downloading the PDF!');
+                });
+        });
+    </script>
+</body>
+</html>
